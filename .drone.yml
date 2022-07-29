@@ -1,0 +1,45 @@
+kind: pipeline
+name: default
+
+steps:
+- name: build
+  image: plugins/hugo
+  settings:
+    hugo_version: 0.101.0
+    extended: true
+    url: https://blog.azurcrystal.com
+    pull: always
+    validate: false
+
+- name: deploy
+  image: appleboy/drone-scp
+  settings:
+    host:
+      from_secret: HOST
+    username:
+      from_secret: SSH_USERNAME
+    key:
+      from_secret: SSH_KEY
+    target: 
+      from_secret: DEPLOY_PATH
+    source: public/*
+
+trigger:
+  branch:
+    - next
+  event:
+    - push
+
+external_data:
+  HOST:
+    path: drone-ci/data/blog.azurcrystal.com
+    name: host
+  SSH_USERNAME:
+    path: drone-ci/data/blog.azurcrystal.com
+    name: ssh_username
+  SSH_KEY:
+    path: drone-ci/data/blog.azurcrystal.com
+    name: ssh_key
+  DEPLOY_PATH:
+    path: drone-ci/data/blog.azurcrystal.com
+    name: deploy_path

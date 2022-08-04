@@ -9,7 +9,6 @@ steps:
     extended: true
     url: https://blog.azurcrystal.com
     pull: always
-    validate: false
 
 - name: deploy
   image: appleboy/drone-scp

@@ -2,16 +2,25 @@ kind: pipeline
 name: default
 
 steps:
+- name: submodule-init
+  image: alpine/git:latest
+  pull: if-not-exists
+  commands:
+    - git submodule init
+    - git submodule update
+
 - name: build
   image: plugins/hugo
+  pull: if-not-exists
   settings:
     hugo_version: 0.101.0
     extended: true
     url: https://blog.azurcrystal.com
-    pull: always
+  
 
 - name: deploy
   image: appleboy/drone-scp
+  pull: if-not-exists
   settings:
     host:
       from_secret: HOST

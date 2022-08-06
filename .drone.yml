@@ -16,6 +16,7 @@ steps:
     hugo_version: 0.101.0
     extended: true
     url: https://blog.azurcrystal.com
+    output: ./blog.azurcrystal.com
   
 
 - name: deploy
@@ -30,7 +31,7 @@ steps:
       from_secret: SSH_KEY
     target: 
       from_secret: DEPLOY_PATH
-    source: public/*
+    source: blog.azurcrystal.com/*
 
 trigger:
   branch:

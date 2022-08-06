@@ -29,16 +29,30 @@ trigger:
   event:
     - push
 
-external_data:
-  HOST:
+---
+kind: secret
+name: HOST
+get:
     path: drone-ci/data/blog.azurcrystal.com
     name: host
-  SSH_USERNAME:
+
+---
+kind: secret
+name: SSH_USERNAME
+get:
     path: drone-ci/data/blog.azurcrystal.com
     name: ssh_username
-  SSH_KEY:
+
+---
+kind: secret
+name: SSH_KEY
+get:
     path: drone-ci/data/blog.azurcrystal.com
     name: ssh_key
-  DEPLOY_PATH:
+
+---
+kind: secret
+name: DEPLOY_PATH
+get:
     path: drone-ci/data/blog.azurcrystal.com
     name: deploy_path

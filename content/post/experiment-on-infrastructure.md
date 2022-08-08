@@ -9,4 +9,5 @@ tags: ['infrastructure','experiment']
 
 <!--more-->
 
-[使用OpenSSL建立私有CA](./setup-ca-with-openssl.md)
+[使用OpenSSL建立私有CA](./post/setup-ca-with-openssl.md)
+[使用OpenLDAP搭建LDAP服务器](./post/setup-ldap-server.md)

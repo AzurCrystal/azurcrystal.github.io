@@ -1,8 +1,8 @@
 ---
-title: "使用OpenLDAP搭建LDAP服务器"
-date: 2022-08-07T22:31:53+08:00
+title: "使用Harbor建立Docker私有镜像源"
+date: 2022-08-14T23:51:59+08:00
 draft: true
-tags: ['infrastructure','ldap','experiment']
+tags: ['ci/cd','']
 ---
 
 本文是[网络基建实验]({{< relref "experiment-on-infrastructure">}})的其中一章。有关其他实验，请参照该文章目录。

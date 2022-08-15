@@ -141,6 +141,12 @@ name = "GitHub"
 url = "https://github.com/AzurCrystal"
 weight = 1
 
+[[menu.link]]
+name = "Blog on Git"
+url = "https://git.azurcrystal.com/AzurCrystal/blog.azurcrystal.com"
+weight = 2
+
+
 [build]
 noJSConfigInAssets = true
 

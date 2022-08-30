@@ -11,7 +11,8 @@ tags: ['infrastructure','experiment']
 
 
 - [使用OpenSSL建立私有CA]({{< relref "setup-ca-with-openssl" >}})
-- [使用OpenLDAP搭建LDAP服务器]({{< relref "setup-ldap-server" >}})  
-<--! - [使用OpenVPN搭建企业VPN并限制访问权限]({{< relref "setup-openvpn-server" >}})-->
+- [使用OpenLDAP建立LDAP服务]({{< relref "setup-ldap-server" >}})  
+- [基于Bind9建立内网DNS]({{< relref "setup-bind9-dns-server" >}})
+- [使用OpenVPN建立企业VPN并限制访问权限]({{< relref "setup-openvpn-server" >}})  
 - [使用Harbor建立Docker私有镜像源]({{< relref "setup-private-docker-registry" >}})
-- [使用rsync同步alpine源镜像]({{< relref "setup-rsync-mirrors" >}})
+- [基于Rsync建立私有Linux镜像源]({{< relref "setup-rsync-mirrors" >}})

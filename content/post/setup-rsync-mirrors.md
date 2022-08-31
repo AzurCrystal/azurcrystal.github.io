@@ -19,7 +19,27 @@ tags: ['infrastructure']
 
 因此，结合之前的[实践]({{< relref "experiment-on-infrastructure">}})，本文将进行从镜像站上游拉取本地镜像并对局域网提供服务的实验。
 
-选用`rsync`协议的
+### rsync
+
+#### 定义
+
+#TODO
+
+#### 选用原因
+
+选用`rsync`协议的原因有如下几点：
+
+- 协议方面
+    1. `rsync`在完成初始同步以后，无需额外设置即可进行增量同步
+    1. `rsync`同步时可以对源文件进行压缩，节省同步时使用的带宽
+
+- 上游方面：
+    1. 主流上游镜像站点均鼓励使用`rsync`协议进行同步
+    1. http/https/ftp同步容易触发连接限制导致同步失败
+
+但是，在对镜像站的原子性做强要求时，`rsync`[并不能保证其同步具有原子性](https://linux.die.net/man/1/rsync)(`--delay-updates`)，需要外部脚本进行原子性的保障。
+
+#TODO 本实验目前并未将镜像站的原子性列入强要求，但之后会考虑利用写时复制（Copy-On-Write)使镜像更新成为原子性操作，此操作需要支持COW的文件系统（如`btrfs`），但目前没有条件。
 
 ## 实验目的
 
@@ -62,9 +82,77 @@ $ mkdir -p /opt/{mirrors,mirror-tools}
 
 ### 镜像Alpine源
 
+#### Alpine源的组织形式
+
+#### 使用rsync直接同步Alpine源
+
 [Alpine Wiki](https://wiki.alpinelinux.org/wiki/How_to_setup_a_Alpine_Linux_mirror)对如何拉取一个rsync镜像做了详细的描述，其中提到了
 
 ### 镜像Debian源
+
+#### Debian源的组织形式
+
+Debian源的组织目录较为简洁。  
+现以只同步了`Debian-bullseye`的`amd64`架构的预构建二进制包，未同步源码的镜像源为例：
+
+```shell
+$ tree -L 2
+
+.
+|-- dists
+|   |-- bullseye
+|   |-- bullseye-backports
+|   |-- bullseye-updates
+|   |-- stable -> bullseye
+|   --- stable-updates -> bullseye-updates
+--- pool
+    |-- contrib
+    |-- main
+    --- non-free
+```
+
+- `dists`: 记录发行版当中软件包的哈希值
+- `pool`: **存放**软件包
+
+
+由于Debian的发行版较多，且存在同版本软件包横跨数个发行版提供的情况，因此Debian采用的是 **只记录发行版中软件包Hash值** 的形式进行单一发行版的软件包提供。该Hash被记录在`dists`目录下，每个文件夹对应一个发行版的软件包总Hash，而`dists`下记录的hash对应的则是`pool`目录下存放的软件包。  
+例如，`dists/bullseye` 的结构如下：
+
+```shell
+$ tree -d
+.
+|-- contrib
+|   |-- binary-all
+|   |-- binary-amd64
+|   |-- dep11
+|   --- i18n
+|-- main
+|   |-- binary-all
+|   |-- binary-amd64
+|   |-- debian-installer
+|   |   |-- binary-all
+|   |   --- binary-amd64
+|   |-- dep11
+|   --- i18n
+--- non-free
+    |-- binary-all
+    |-- binary-amd64
+    |-- dep11
+    --- i18n
+```
+
+通过Debian官方建议方式(`ftpsync`,`debmirror`,`apt-mirror`S)同步任意架构（如`amd64`和`i386`）时，全架构通用（`all`）也会一同被同步。
+
+`dists/stable` 则指向 `bullseye`，代表 `Debian-bullseye` 是当前的 `stable` 发行版。
+
+#### Debian社区提供的镜像方式
+
+[Debian Mirror Site](https://www.debian.org/mirror/ftpmirror)提供了建立一个对外开放的Debian镜像的相关建议，结合网上已有的经验，共可根据目的分为以下几种；  
+Debian的镜像仍然可以通过`rsync`协议进行同步，但是具有多种不同的手段。
+
+如果想要全量拉取所有架构和发行版，可以直接使用`rsync`进行同步，也可以
+
+拉取Debian镜像可以通过`apt-mirror`
 
 ## 总结
 

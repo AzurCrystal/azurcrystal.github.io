@@ -2,12 +2,12 @@
 title: "使用OpenLDAP建立LDAP服务"
 date: 2022-08-07T22:31:53+08:00
 draft: false
-tags: ['infrastructure','ldap','experiment']
+tags: ['experiment','ops','ldap']
 ---
 
 #TODO
 
-本文是[网络基建实验]({{< relref "experiment-on-infrastructure">}})的其中一章。有关其他实验，请参照该文章目录。
+本文是[网络基建实验]({{< relref "experiment-on-ops">}})的其中一章。有关其他实验，请参照该文章目录。
 
 <!--more-->
 

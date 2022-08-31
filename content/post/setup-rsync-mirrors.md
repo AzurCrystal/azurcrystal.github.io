@@ -2,12 +2,12 @@
 title: "基于Rsync建立私有Linux镜像源"
 date: 2022-08-15T00:27:59+08:00
 draft: false
-tags: ['infrastructure']
+tags: ['experiment','ops']
 ---
 
 #TODO
 
-本文是[网络基建实验]({{< relref "experiment-on-infrastructure">}})的其中一章。有关其他实验，请参照该文章目录。
+本文是[网络基建实验]({{< relref "experiment-on-ops">}})的其中一章。有关其他实验，请参照该文章目录。
 
 <!--more-->
 
@@ -17,7 +17,7 @@ tags: ['infrastructure']
 
 然而，不放通公网导致内网当中的已存主机和新建主机无法通过公网上的镜像源进行应用更新，且对于其他使用公网镜像的主机而言，一份本地同步的局域网镜像可以有效节省出口带宽，增加更新速度，达到了以**空间**换**时间**的效果。
 
-因此，结合之前的[实践]({{< relref "experiment-on-infrastructure">}})，本文将进行从镜像站上游拉取本地镜像并对局域网提供服务的实验。
+因此，结合之前的[实践]({{< relref "experiment-on-ops">}})，本文将进行从镜像站上游拉取本地镜像并对局域网提供服务的实验。
 
 ### rsync
 
@@ -116,7 +116,10 @@ $ tree -L 2
 
 
 由于Debian的发行版较多，且存在同版本软件包横跨数个发行版提供的情况，因此Debian采用的是 **只记录发行版中软件包Hash值** 的形式进行单一发行版的软件包提供。该Hash被记录在`dists`目录下，每个文件夹对应一个发行版的软件包总Hash，而`dists`下记录的hash对应的则是`pool`目录下存放的软件包。  
-例如，`dists/bullseye` 的结构如下：
+
+##### dists
+
+以上面为例，`dists/bullseye` 的结构如下：
 
 ```shell
 $ tree -d
@@ -141,9 +144,14 @@ $ tree -d
     --- i18n
 ```
 
-通过Debian官方建议方式(`ftpsync`,`debmirror`,`apt-mirror`S)同步任意架构（如`amd64`和`i386`）时，全架构通用（`all`）也会一同被同步。
+- 通过Debian官方建议方式(`ftpsync`,`debmirror`,`apt-mirror`)同步任意架构（如`amd64`和`i386`）时，全架构通用（`all`）也会一同被同步。
+
+
+
 
 `dists/stable` 则指向 `bullseye`，代表 `Debian-bullseye` 是当前的 `stable` 发行版。
+
+##### pool
 
 #### Debian社区提供的镜像方式
 
@@ -157,3 +165,9 @@ Debian的镜像仍然可以通过`rsync`协议进行同步，但是具有多种�
 ## 总结
 
 ## 参考资料
+
+- [rsync的man手册](https://linux.die.net/man/1/rsync)
+- [Alpine Wiki](https://wiki.alpinelinux.org/wiki/How_to_setup_a_Alpine_Linux_mirror)
+- [Debian网站关于建立镜像站的建议](https://www.debian.org/mirror/ftpmirror)
+- [山东大学镜像站](https://mirrors.sdu.edu.cn/docs/blog/BackendConfigJournal/)
+- [北京外国语大学镜像站](https://mirrors.bfsu.edu.cn)

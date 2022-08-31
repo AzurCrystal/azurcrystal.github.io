@@ -2,10 +2,10 @@
 title: "使用OpenSSL建立私有CA"
 date: 2022-08-06T19:42:42+08:00
 draft: false
-tags: ['infrastructure','openssl','ca','experiment']
+tags: ['experiment','ops','openssl','ca']
 ---
 
-本文是[网络基建实验]({{< relref "experiment-on-infrastructure">}})的其中一章。有关其他实验，请参照该文章目录。
+本文是[网络基建实验]({{< relref "experiment-on-ops">}})的其中一章。有关其他实验，请参照该文章目录。
 
 电子证书认证机构(**CA**,Certificate Authority)是组织内网络基础设施建设的重要一环。建立一个私有的局域网CA，可以以较小的成本提供较高的内网安全性。  
 

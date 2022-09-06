@@ -146,21 +146,70 @@ $ tree -d
 
 - 通过Debian官方建议方式(`ftpsync`,`debmirror`,`apt-mirror`)同步任意架构（如`amd64`和`i386`）时，全架构通用（`all`）也会一同被同步。
 
-
-
-
 `dists/stable` 则指向 `bullseye`，代表 `Debian-bullseye` 是当前的 `stable` 发行版。
 
 ##### pool
 
+以上面为例，`pool` 的结构如下：
+
+```shell
+tree -L 1
+.
+|-- contrib
+|-- main
+|-- non-free
+```
+
+pool的结构相对简单，因为其只需存放整个Debian源的软件包。
+
 #### Debian社区提供的镜像方式
 
 [Debian Mirror Site](https://www.debian.org/mirror/ftpmirror)提供了建立一个对外开放的Debian镜像的相关建议，结合网上已有的经验，共可根据目的分为以下几种；  
-Debian的镜像仍然可以通过`rsync`协议进行同步，但是具有多种不同的手段。
 
-如果想要全量拉取所有架构和发行版，可以直接使用`rsync`进行同步，也可以
+- 全量拉取所有架构和所有发行版:
+    - 直接使用`rsync`协议从上游进行同步
+    - (推荐)使用Debian社区推荐的[工具](https://mirrors.ustc.edu.cn/debian/project/ftpsync/ftpsync-current.tar.gz)`ftpsync`进行同步
+- 拉取部分架构/发行版
+    - `ftpsync`: 可以设置同步的架构，但无法指定某个发行版的dist
+    - `debmirror`: 支持`rsync`协议，可以指定特定架构和发行版
+    - `apt-mirror`: [Github](https://github.com/apt-mirror/apt-mirror/blob/master/apt-mirror)，不支持`rsync`，但保证同步是**原子性**操作
 
-拉取Debian镜像可以通过`apt-mirror`
+由于`debmirror`相对配置较多，可以只同步特定架构和特定发行版的`dists`，故本次实验采用`debmirror`进行同步。
+
+#### Debmirror
+
+根据`Debmirror`的[Man Page](https://linux.die.net/man/1/debmirror)，它可以直接从命令行运行，或者经由`/etc/debmirror.conf`配置。
+
+使用以下命令同步`Debian`镜像：
+
+```shell
+debmirror -v                \
+    -h mirrors.bfsu.edu.cn  \
+    -r debian               \
+    -a amd64                \
+    -d bullseye             \
+    -d bullseye-backports   \
+    -d bullseye-updates     \
+    --nosource              \
+    --diff=none             \
+    --method=rsync          \
+    /opt/mirrors/debian
+```
+
+使用以下命令同步`Debian-Security`镜像:
+
+```shell
+debmirror -v                \
+    -h mirrors.bfsu.edu.cn  \
+    -r debian-security      \
+    -a amd64                \
+    -d bullseye-security    \
+    --nosource              \
+    --diff=none             \
+    --method=rsync          \
+    /opt/mirrors/debian-security
+```
+
 
 ## 总结
 

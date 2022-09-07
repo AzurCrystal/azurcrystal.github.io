@@ -21,7 +21,7 @@ tags: ['experiment','ops']
 
 ### rsync
 
-#### 定义
+#### 定义z
 
 #TODO
 
@@ -83,6 +83,8 @@ $ mkdir -p /opt/{mirrors,mirror-tools}
 ### 镜像Alpine源
 
 #### Alpine源的组织形式
+
+Alpine源的结构较为简单，
 
 #### 使用rsync直接同步Alpine源
 
@@ -146,7 +148,7 @@ $ tree -d
 
 - 通过Debian官方建议方式(`ftpsync`,`debmirror`,`apt-mirror`)同步任意架构（如`amd64`和`i386`）时，全架构通用（`all`）也会一同被同步。
 
-`dists/stable` 则指向 `bullseye`，代表 `Debian-bullseye` 是当前的 `stable` 发行版。
+`dists/stable` 则以软链接的形式指向 `bullseye`，代表 `Debian-bullseye` 是当前的 `stable` 发行版。
 
 ##### pool
 
@@ -210,6 +212,33 @@ debmirror -v                \
     /opt/mirrors/debian-security
 ```
 
+```
+```
+
+### 定时任务
+
+在Linux系统中，`crontab` 可以满足绝大多数的定时任务需求。不过，在使用 `systemd` 的系统当中，`systemd-timer` 可以替换 `crontab` ，作为更精确的定时任务源发挥作用。
+
+```
+15 2 * * * /usr/local/bin/update-mirror.sh
+```
+
+`/etc/systemd/system/update-mirror.timer`
+
+```ini
+[Unit]
+
+[Timer]
+```
+`/etc/systemd/system/update-mirror.service`
+
+```ini
+[Unit]
+
+[Install]
+```
+
+为了保证能够多任务处理
 
 ## 总结
 

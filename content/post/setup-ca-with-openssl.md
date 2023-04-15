@@ -172,15 +172,22 @@ prompt = yes                      # NO时必须存在默认DN字段
                                   # YES时则申请时可手动输入DN字段
 
 [ req_distinguished_name ]        
+countryName = Country Name (2 letter code)
+stateOrProvinceName = State or Province Name (full name)
+localityName = Locality Name (eg, city)
+organizationName = Organization Name
+organizationalUnitName = Organizational Unit Name (eg, section)
+commonName = Common Name
 
 # 默认DN字段
 # 此处字段的存在情况应当与 [ default_policy ] 中的一致
-countryName = CN 
-stateOrProvinceName = Some_Province
-localityName = Some_City
-organizationName = An Organzition
-commonName = An Organzition Root CA
-organizationalUnitName = CA Services
+
+countryName_default = CN 
+stateOrProvinceName_default = Some_Province
+localityName_default  = Some_City
+organizationName_default  = An Organzition
+commonName_default  = An Organzition Root CA
+organizationalUnitName_default  = CA Services
 
 
 [ usr_cert ]
@@ -243,6 +250,7 @@ openssl req                 \
 $ openssl ca -selfsign      \
         -in csr/ca.csr      \
         -out certs/ca.crt   \
+        -days 365           \
         -config ca.cnf      
 ```
 
@@ -259,8 +267,8 @@ $ openssl x509        \
 证书必须为 `*.crt`，否则不会被update命令识别。
 
 ```shell
-$ cp certs/ca.crt /usr/local/share/ca-certificates/your-ca-name.crt
-$ update-ca-certificates
+# cp certs/ca.crt /usr/local/share/ca-certificates/your-ca-name.crt
+# update-ca-certificates
 ```
 
 **注意**：部分浏览器使用自带的CA，如Firefox，需要再在浏览器中添加根CA。
@@ -291,7 +299,7 @@ cp ${ROOT_CA_DIR}/ca.cnf ${SECONDARY_CA_DIR}/ca.cnf
 ...
 [ CA_Default ]               
 ...
-dir = /opt/pki/CA                 # !!所有有关于CA的文件存放位置
+dir = /opt/pki/SecondaryCA                 # !!所有有关于CA的文件存放位置
 ...
 [ req_distinguished_name ]        
 ...

@@ -14,10 +14,18 @@ tags: ['experiment','ops','ldap']
 ## 背景
 
 ### LDAP服务应用
-
+ 
 ### 中间层
 
-### mdb,bdb以及其他后端
+### `mdb`/`bdb`/`hdb`以及其他后端
+
+在许多LDAP配置教程当中，采用的多是`hdb`,`bdb`等存储后端，
+而现在在主要发行版上安装的`OpenLDAP`则多是`mdb`作为存储后端。
+
+依据[OpenLDAP FAQ](https://www.openldap.org/faq/data/cache/756.html)所述，
+ `back-bdb` 和 `back-hdb` 均是基于 `BerkleyDB` 的存储后端，且**已弃用**。
+
+
 
 ## 实验步骤
 

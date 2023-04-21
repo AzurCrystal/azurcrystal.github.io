@@ -1,19 +1,19 @@
 ---
-title: "Setup Minecraft Server"
+title: "配置MineCraft游戏服务器"
 date: 2023-04-20T14:58:58+08:00
-draft: true
+draft: false
 tags: ['minecraft','server','games']
 ---
 
 由于我的一个朋友最近厌倦了网易的MC，想要体验一下之前玩过的Java版，
-还想玩[AoA3]()这个模组~~玩刺激的RPG~~。
+还想玩[AoA3](https://www.curseforge.com/minecraft/mc-mods/advent-of-ascension-nevermine)这个模组~~玩刺激的RPG~~。
 正好我手头有空闲的计算资源，用本文来记录一下搭建过程和遇到的问题。
 
 <!--more-->
 
 ## 准备工作
 
-调研的时候自然是优先打算采取[`Docker`]()方案的，
+调研的时候自然是优先打算采取[`Docker`](https://hub.docker.com/r/itzg/minecraft-server/)方案的，
 毕竟上次开服务器的时候`Docker`证明了它的易用性和稳定性。
 
 但是很快遇到了和搭建`CI`系统时一样的问题，
@@ -23,18 +23,20 @@ tags: ['minecraft','server','games']
 
 由于这个朋友的朋友们都是萌新，有正版的人很少数，
 再考虑到之前搭建MC服务器的时候有被顶替爆破的问题，
-最后还是顺手又搭建了一个基于[Blessing Skin]()的皮肤站，
-并开启了验证码、[正版验证]()和[世界树API]()三个功能。
+最后还是顺手又搭建了一个基于[Blessing Skin](https://github.com/bs-community)的皮肤站，
+并开启了验证码、[正版验证](https://github.com/bs-community/blessing-skin-plugins/tree/master/plugins/mojang-verification)
+和[世界树API](https://github.com/bs-community/blessing-skin-plugins/tree/master/plugins/yggdrasil-api)三个功能。
 
 ### 游戏要求
 
-AoA3模组在[MCWiki]()下列出的一般要求是：
+AoA3模组在[MCWiki](https://www.mcmod.cn/class/1269.html)下列出的一般要求是：
 
 - `MineCraft Java Edition 1.16.5`
 - `Forge`
 
 MC 1.16.5版本主要使用`Java8`运行，
-但是通过[`ModernFix`]()这个模组可以让1.16版本的MC[在更改虚拟机参数的前提下]()使用`Java17`运行，
+但是通过[`ModernFix`](https://www.mcmod.cn/class/8714.html)这个模组，
+可以让1.16版本的MC[在更改虚拟机参数的前提下](https://github.com/embeddedt/ModernFix/wiki/1.16---required-arguments-for-Java-17)使用`Java17`运行，
 所以这里服务端和客户端都采用`Java17`。
 
 ~~也是因为`Debian Bullseye`已经不提供`Java8`的JRE包了~~
@@ -167,6 +169,43 @@ $ java -jar forge-1.16.5-36.2.39-installer.jar --installServer aoa3-1.16.5 nogui
 
 安装完成之后，就可以删除`Forge`的安装包，并且配置`server.properties`和放置`mod`。
 
+#### 编写启动脚本
+
+由于使用`Java17`启动`Minecraft 1.16.5 + Forge`，所以必须对虚拟机参数做一定的修改，
+并且限制MC本身分配的内存。
+
+```shell
+#!/bin/sh
+/usr/lib/jvm/java-17-openjdk-amd64/bin/java \
+	-Xms4G -Xmx8G \
+	-Djava.security.manager=allow \
+	-Dfile.encoding=UTF-8 \
+	--add-opens java.base/jdk.internal.loader=ALL-UNNAMED \
+	--add-opens java.base/java.net=ALL-UNNAMED \
+	--add-opens java.base/java.nio=ALL-UNNAMED \
+	--add-opens java.base/java.io=ALL-UNNAMED \
+	--add-opens java.base/java.lang=ALL-UNNAMED \
+	--add-opens java.base/java.lang.reflect=ALL-UNNAMED \
+	--add-opens java.base/java.text=ALL-UNNAMED \
+	--add-opens java.base/java.util=ALL-UNNAMED \
+	--add-opens java.base/jdk.internal.reflect=ALL-UNNAMED \
+	--add-opens java.base/sun.nio.ch=ALL-UNNAMED \
+	--add-opens jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED,java.naming \
+	--add-opens java.desktop/sun.awt.image=ALL-UNNAMED \
+	--add-modules jdk.dynalink \
+    --add-opens jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED \
+	--add-modules java.sql.rowset \
+	--add-opens java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED \
+	--add-exports java.base/sun.security.util=ALL-UNNAMED \
+	--add-opens java.base/java.util.jar=ALL-UNNAMED \
+	-javaagent:authlib-injector-1.2.2.jar=https://mc.azurcrystal.com/api/yggdrasil \
+	-jar forge-1.16.5-36.2.39.jar nogui
+```
+
+之后可以根据这个启动脚本编写`systemd`文件或者使用`tmux`直接管理，
+由于MC服务器并不要求自动启动和自动重启，
+而且为了方便快捷的使用`forge`内置的`Shell`，我这里选择了`tmux`。
+
 ### 皮肤站
 
 #### 检查PHP环境
@@ -267,11 +306,67 @@ server {
 
 ## 后续优化
 
-### 游戏服务器
-
 ### 皮肤站
 
-#### 插件市场
+#### 镜像插件市场
+
+鉴于[插件市场的迁移](https://t.me/blessing_skin_news/781)，且`git.qvq.network`在国内的连接并不理想，
+遂在服务器端本地复制了一份[插件市场](https://github.com/bs-community/plugins-dist)，
+并将其`registry_zh_CN.json`和`registry_en.json`中的地址进行[替换](https://git.azurcrystal.com/AzurCrystal/plugins-dist/src/branch/master/registry_zh_CN.json)，
+相当于在本地镜像了一份插件市场，之后更改`.env`：
+
+```ini
+PLUGINS_REGISTRY=https://git.azurcrystal.com/AzurCrystal/plugins-dist/raw/master/registry_{lang}.json
+```
+
+之后只需要定时向上游拉取并自动打上`Patch`就可以在本地镜像了。
 
 #### 正版验证
 
+由于劫持了世界树API，实际上正版验证在这个环节中已经成为可有可无的部分了。
+在`yggdrasil api`由皮肤站运营的前提下，所有通过皮肤站账户连入的用户都是正版，
+唯一的区别可能就是使用的`UUID`与实际正版账户不同了。
+保持各个采用世界树API的`UUID`不同是一个明智的选择。
+
+##### 环境配置
+
+为了启用正版验证，需要在`.env`中配置以下三个值：
+```ini
+MICROSOFT_KEY=9fce0559-44b4-4c95-a144-d3ccf50ea62b
+MICROSOFT_SECRET=secret@123
+MICROSOFT_REDIRECT_URI=https://skin.bs-community.dev/mojang/callback
+```
+
+##### 注册微软应用
+
+打开`https://aka.ms/aad`后，实际上会跳转到`https://azure.microsoft.com/en-us/products/active-directory/`，
+也就是微软官方的身份验证服务。
+
+点击`登录(Signin)` 并用微软账户登录以后，可以进到主控制台界面。
+
+找到顶部的`Azure服务`中的`Azur Active Directory`，进入后选择`添加-应用注册`，输入应用名称（随意输入）；
+勾选`受支持的账户类型`为以下的其中一项，
+
+- `任何组织目录(任何 Azure AD 目录 - 多租户)中的帐户和个人 Microsoft 帐户(例如，Skype、Xbox)` 
+- `仅 Microsoft 个人帐户`
+
+并将`重定向URI`设置为`Web`，值为`https://mc.example.com/mojang/callback`。
+
+之后点击完成创建，完成创建后的应用的`应用程序(客户端)ID`即是`MICROSOFT_KEY`。
+
+`MICROSOFT_SECRET`则需点击左侧列表中的`证书和密码`，新建一个`客户端密码`，其`值`（非机密ID）即为变量值。
+需注意，`客户端密码值`出现一次后就无法再查看，请及时保存。
+
+之后按照所设置的变量更改`.env`，即可启用基于`Microsoft`账户的皮肤站内正版验证。
+
+## 问题
+
+### 皮肤站
+
+- 无法直接从皮肤站的上传页面上传皮肤
+    - 推测是`php8`的处理问题，正在考虑编译一份`php8.0.2`
+    - 目前可以直接从启动器中上传皮肤
+- 正版验证无法更改玩家UUID
+    - 属于良性BUG
+    - 更改UUID会导致玩家存档消失，而且容易混淆，反而不应当更改
+    - 如需正版皮肤和披风应当使用`CustomSkinLoader`这个插件

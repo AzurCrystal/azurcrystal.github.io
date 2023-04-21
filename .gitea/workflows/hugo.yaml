@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: https://git.azurcrystal.com/mirror-bot/checkout@v3
         with:
           submodules: true
           fetch-depth: 0
@@ -36,7 +36,7 @@ jobs:
         run: hugo -b "https://blog.azurcrystal.com"
 
       - name: Install Rsync
-        run: apt-get update && apt-get install rsync -y
+        run: sed -i s/deb.debian.org/${{ secrets.DEBIAN_MIRROR }}/g /etc/apt/sources.list && apt-get update && apt-get install rsync -y
         shell: bash
 
       - name: Deploy

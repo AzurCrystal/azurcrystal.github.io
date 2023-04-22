@@ -21,7 +21,7 @@ tags: ['minecraft','server','games']
 本地代理显然也不是一个优雅的解决方案，
 而且该主机上面也挂了不少服务，考虑之下还是上传`jar`包手动搭建。
 
-由于这个朋友的朋友们都是萌新，有正版的人很少数，
+由于这个朋友的朋友们都是~~萌新~~肝帝，有正版的人很少数，
 再考虑到之前搭建MC服务器的时候有被顶替爆破的问题，
 最后还是顺手又搭建了一个基于[Blessing Skin](https://github.com/bs-community)的皮肤站，
 并开启了验证码、[正版验证](https://github.com/bs-community/blessing-skin-plugins/tree/master/plugins/mojang-verification)
@@ -47,7 +47,12 @@ MC 1.16.5版本主要使用`Java8`运行，
 
 #### 安装Java环境
 
-安装 `openjdk-17-jre-headless`:
+Java环境可以从*Oracle*的`Adoptium`还有*IBM*的`openj9`当中选择。
+清华大学提供了[`Adoptium`](https://mirrors.tuna.tsinghua.edu.cn/help/adoptium/)的Repo镜像，
+以及[`openj9`](https://mirrors.tuna.tsinghua.edu.cn/github-release/ibmruntimes/)的`Github Release`镜像，
+或者直接从`Debian Bullseye`源安装。
+
+##### 从`Debian`源安装 `openjdk-17-jre-headless`
 
 ```shell
 $ sudo apt install openjdk-17-jre-headless
@@ -216,12 +221,19 @@ $ java -jar forge-1.16.5-36.2.39-installer.jar --installServer aoa3-1.16.5 nogui
 $ sudo systemctl status php8.0-fpm
 ```
 
-查看`php-fpm`的`unix-socket`位置：
+查看`php-fpm`默认的`unix-socket`位置：
 
 ```shell
 $ grep "listen =" /etc/php/8.0/fpm/pool.d/www.conf 
 listen = /run/php/php8.0-fpm.sock
 ;pm.status_listen = 127.0.0.1:9001
+```
+
+当然，也可以为站点独立配置一个`php-unixsocket`：
+
+```shell
+$ cp /etc/php/8.0/fpm/pool.d/www.conf /etc/php/8.0/fpm/pool.d/mc.conf
+$ sed -i s/php8.0-fpm.sock/blessingskin.sock/g /etc/php/8.0/fpm/pool.d/mc.conf
 ```
 
 #### 配置站点
@@ -312,7 +324,13 @@ server {
 
 鉴于[插件市场的迁移](https://t.me/blessing_skin_news/781)，且`git.qvq.network`在国内的连接并不理想，
 遂在服务器端本地复制了一份[插件市场](https://github.com/bs-community/plugins-dist)，
-并将其`registry_zh_CN.json`和`registry_en.json`中的地址进行[替换](https://git.azurcrystal.com/AzurCrystal/plugins-dist/src/branch/master/registry_zh_CN.json)，
+并将其`registry_zh_CN.json`和`registry_en.json`中的registry地址进行[替换](https://git.azurcrystal.com/AzurCrystal/plugins-dist/src/branch/master/registry_zh_CN.json)：
+
+```
+$ sed -i s/git.qvq.network\/bs-community\/plugins-dist\/-/git.azurcrystal.com\/AzurCrystal\/plugins-dist/g registry_en.conf
+registry_zh_CN.conf
+```
+
 相当于在本地镜像了一份插件市场，之后更改`.env`：
 
 ```ini

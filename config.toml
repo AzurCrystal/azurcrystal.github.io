@@ -1,4 +1,4 @@
-baseURL = "https://blog.azurcrystal.com"
+baseURL = "https://azurcrystal.github.io"
 title = "枫夜千羽的记事本"
 
 theme = "fuji"
@@ -31,7 +31,7 @@ home = ["HTML", "RSS", "SearchIndex"]
 post = "/:section/:filename/" # Custom post links, e.g. "/:year/:month/:title/"
 
 [params]
-author = "枫夜千羽"                # You can also set author in post front matter individually
+author = "AzurCrystal"                # You can also set author in post front matter individually
 subTitle = "The palest ink is better than the best memory."
 defaultTheme = "dark"              # default theme when first visit (auto|dark|light)
 
@@ -142,8 +142,8 @@ url = "https://github.com/AzurCrystal"
 weight = 1
 
 [[menu.link]]
-name = "Blog on Git"
-url = "https://git.azurcrystal.com/AzurCrystal/blog.azurcrystal.com"
+name = "Source"
+url = "https://github.com/AzurCrystal/azurcrystal.github.io"
 weight = 2
 
 

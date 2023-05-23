@@ -1,7 +1,8 @@
-name: Deploy Hugo Site to Blog
+name: GitHub Pages
 on:
   push:
-  pull_request:
+    branches:
+      - next
   workflow_dispatch:
 
 defaults:
@@ -10,47 +11,35 @@ defaults:
 
 jobs:
   build-deploy:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
     steps:
-      - name: Checkout Repo
-        uses: https://git.azurcrystal.com/mirror-bot/checkout@v3
+      - uses: actions/checkout@v3
         with:
-          submodules: true
+          submodules: recursive
           fetch-depth: 0
       
       - name: Setup Hugo
-        uses: https://git.azurcrystal.com/mirror-bot/actions-hugo@v2
+        uses: peaceiris/actions-hugo@v2
         with:
           hugo-version: 'latest'
           extended: true
 
-      - name: Cache Golang Modules
-        uses: https://git.azurcrystal.com/mirror-bot/cache@v2
-        with:
-          path: /tmp/hugo_cache
-          key: ${{ runner.os }}-hugomod-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-hugomod-  
-
       - name: Build
-        run: hugo -b "https://blog.azurcrystal.com"
-
-      - name: Install Rsync
-        run: sed -i s/deb.debian.org/${{ secrets.DEBIAN_MIRROR }}/g /etc/apt/sources.list && apt-get update && apt-get install rsync -y
-        shell: bash
+        env:
+          HUGO_ENVIRONMENT: production
+          HUGO_ENV: production
+        run: |
+          hugo \
+            --gc \
+            --minify 
 
       - name: Deploy
-        uses: https://git.azurcrystal.com/mirror-bot/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-rlgoDzvc -i --delete"
-          SOURCE: "./public/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          TARGET: ${{ secrets.REMOTE_TARGET }}
-          SCRIPT_BEFORE: |
-            whoami
-            ls -al
-          SCRIPT_AFTER: |
-            whoami
-            ls -al
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/next' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
